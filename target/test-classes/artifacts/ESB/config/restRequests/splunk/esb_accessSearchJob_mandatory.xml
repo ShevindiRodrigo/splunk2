@@ -1,7 +1,0 @@
-<accessSearchJob>
-    <username>%s(username)</username>
-    <password>%s(password)</password>
-    <hostname>%s(hostname)</hostname>
-    <port>%s(port)</port>
-    <searchId>%s(searchId)</searchId>
-</accessSearchJob>

@@ -1,8 +1,0 @@
-<createConfigFile>
-    <username>%s(username)</username>
-    <password>%s(password)</password>
-    <hostname>%s(hostname)</hostname>
-    <port>%s(port)</port>
-    <appName></appName>
-    <configFileName></configFileName>
-</createConfigFile>
