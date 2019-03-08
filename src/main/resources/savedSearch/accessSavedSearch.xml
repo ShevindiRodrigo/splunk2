@@ -35,32 +35,33 @@
         <property name="uri.var.orphanField" expression="$func:orphanField"/>
         <script language="js">
             <![CDATA[
-            var payload = mc.getPayloadXML();
-            var earliestTime = mc.getProperty("uri.var.earliestTime");
-            var latestTime = mc.getProperty("uri.var.latestTime");
-            var listDefaultAction = mc.getProperty("uri.var.listDefaultAction");
-            var orphanField = mc.getProperty("uri.var.orphanField");
-
-            if ( earliestTime != null && earliestTime != "") {
-                payload.earliest_time = earliestTime ;
-            }
-            if ( latestTime != null && latestTime != "") {
-                payload.latest_time = latestTime;
-            }
-            if ( listDefaultAction != null && listDefaultAction != "") {
-                payload.listDefaultActionArgs = listDefaultAction;
-            }
-            if ( orphanField != null && orphanField != "") {
-                payload.add_orphan_field = orphanField;
-            }
-            mc.setPayloadXML(payload);
+                var earliestTime = mc.getProperty("uri.var.earliestTime");
+                var latestTime = mc.getProperty("uri.var.latestTime");
+                var listDefaultAction = mc.getProperty("uri.var.listDefaultAction");
+                var orphanField = mc.getProperty("uri.var.orphanField");
+                var urlParamString = '';
+                if (earliestTime != "" && earliestTime != null) {
+                    urlParamString += '&earliest_time=' + earliestTime;
+                }
+                if (latestTime != "" && latestTime != null) {
+                    urlParamString += '&latest_time=' + latestTime;
+                }
+                if (listDefaultAction != "" && listDefaultAction != null) {
+                    urlParamString += '&listDefaultActionArgs=' + listDefaultAction;
+                }
+                if (orphanField != "" && orphanField != null) {
+                    urlParamString += '&add_orphan_field=' + orphanField;
+                }
+                if(urlParamString != '') {
+                    urlParamString = '?' + urlParamString.toString().substring(1);
+                }
+                mc.setProperty('uri.var.urlParamString', urlParamString);
             ]]>
         </script>
-        <header name="Authorization" expression="get-property('Authorization')" scope="transport"/>
         <call>
             <endpoint>
                 <http method="GET"
-                      uri-template="https://{uri.var.hostname}:{uri.var.port}/servicesNS/{uri.var.appUserName}/{uri.var.appName}/saved/searches"/>
+                      uri-template="https://{uri.var.hostname}:{uri.var.port}/servicesNS/{uri.var.appUserName}/{uri.var.appName}/saved/searches{+uri.var.urlParamString}"/>
             </endpoint>
         </call>
     </sequence>

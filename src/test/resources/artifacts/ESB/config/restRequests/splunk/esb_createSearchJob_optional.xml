@@ -3,7 +3,7 @@
     <password>%s(password)</password>
     <hostname>%s(hostname)</hostname>
     <port>%s(port)</port>
-    <searchQuery>%s(searchQuery)</searchQuery>
+    <searchQuery>%s(searchQuery1)</searchQuery>
     <adhocSearchLevel></adhocSearchLevel>
     <searchId></searchId>
     <maxCount>%s(maxCount)</maxCount>

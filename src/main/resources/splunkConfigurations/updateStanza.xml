@@ -26,39 +26,25 @@
         <property name="uri.var.configFileName" expression="$func:configFileName"/>
         <property name="uri.var.stanzaName" expression="$func:stanzaName"/>
         <property name="uri.var.dataFields" expression="$func:dataFields"/>
-        <!--<script language="js"><![CDATA[-->
-             <!--var dataFields = mc.getProperty('uri.var.dataFields');-->
-             <!--var urlQuery = '';-->
+        <script language="js"><![CDATA[
+             var dataFields = mc.getProperty('dataFields');
+             var urlQuery = '';
 
-             <!--if (dataFields != "null" && dataFields != null && dataFields != ""){-->
-                    <!--urlQuery += dataFields;-->
-                <!--}-->
-             <!--if (urlQuery != null && urlQuery != ""){-->
-                    <!--urlQuery = + urlQuery;-->
-                <!--}-->
-                <!--mc.setProperty('uri.var.urlQuery', urlQuery);-->
-            <!--]]>-->
-
-        <!--</script>-->
-        <payloadFactory media-type="json">
-            <format>
-                {
-                "$1"
-                }
-            </format>
-            <args>
-                <arg evaluator="xml" expression="get-property('dataFields')" literal="false"
-                     xmlns="http://org.apache.synapse/xsd"/>
-            </args>
-        </payloadFactory>
+             if (dataFields != "null" && dataFields != "") {
+                urlQuery += dataFields;
+             }
+             if (urlQuery != null && urlQuery != "") {
+                urlQuery = '?' + urlQuery;
+             }
+             mc.setProperty('uri.var.urlQuery', urlQuery);
+            ]]>
+        </script>
         <property name="messageType" scope="axis2" type="STRING" value="application/x-www-form-urlencoded"/>
-        <header name="Authorization" expression="get-property('Authorization')" scope="transport"/>
         <call>
             <endpoint>
                 <http method="POST"
-                      uri-template="https://{uri.var.hostname}:{uri.var.port}/servicesNS/nobody/{uri.var.appName}/configs/conf-{uri.var.configFileName}/{uri.var.stanzaName}?{+uri.var.urlQuery}"/>
+                      uri-template="https://{uri.var.hostname}:{uri.var.port}/servicesNS/nobody/{uri.var.appName}/configs/conf-{uri.var.configFileName}/{uri.var.stanzaName}{+uri.var.urlQuery}"/>
             </endpoint>
         </call>
     </sequence>
 </template>
-

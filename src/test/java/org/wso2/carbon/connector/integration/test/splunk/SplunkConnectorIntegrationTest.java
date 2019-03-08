@@ -30,14 +30,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Integration test for splunk connector.
+ * Integration test for Splunk connector.
  */
 public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase {
 
-    private Map<String, String> eiRequestHeadersMap = new HashMap<String, String>();
-    private Map<String, String> apiRequestHeadersMap = new HashMap<String, String>();
+    private Map<String, String> eiRequestHeadersMap = new HashMap<>();
+    private Map<String, String> apiRequestHeadersMap = new HashMap<>();
 
-    private String searchName, searchId;
+    private String searchName, searchId, apiUrl;
 
     @BeforeClass(alwaysRun = true)
     public void setEnvironment() throws Exception {
@@ -57,30 +57,42 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         // encoding token into base 64
         byte[] encodedToken = Base64.encodeBase64(token.getBytes());
         apiRequestHeadersMap.put("Authorization", "Basic " + new String(encodedToken));
+
+        apiUrl = "https://" + connectorProperties.getProperty("hostname") + ":" +
+                connectorProperties.getProperty("port");
+
+        connectorProperties.setProperty("searchName",
+                System.currentTimeMillis() + connectorProperties.getProperty("searchName"));
+        connectorProperties.setProperty("searchName1",
+                System.currentTimeMillis() + connectorProperties.getProperty("searchName1"));
+        connectorProperties.setProperty("configFileName",
+                System.currentTimeMillis() + connectorProperties.getProperty("configFileName"));
+        connectorProperties.setProperty("stanzaName",
+                System.currentTimeMillis() + connectorProperties.getProperty("stanzaName"));
+        connectorProperties.setProperty("stanzaName1",
+                System.currentTimeMillis() + connectorProperties.getProperty("stanzaName1"));
     }
 
     /**
      * Positive test case for createSavedSearch with mandatory parameters.
      */
-
-    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {createSavedSearch} integration test with " +
-            "mandatory parameters.")
+    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {createSavedSearch} integration " +
+            "test with mandatory parameters.")
     public void testCreateSavedSearchMandatory() throws Exception {
 
         eiRequestHeadersMap.put("Action", "urn:createSavedSearch");
 
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
-                        "esb_createSavedSearch_mandatory.xml");
+                "esb_createSavedSearch_mandatory.xml");
 
         searchName = getValueByExpression("//entry/title", eiRestResponse.getBody());
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/" +
-                connectorProperties.getProperty("appUserName") + "/" + connectorProperties.getProperty("appName") +
-                "/saved/searches/" + connectorProperties.getProperty("searchName");
+        String apiEndpoint = apiUrl + "/servicesNS/" + connectorProperties.getProperty("appUserName") + "/" +
+                connectorProperties.getProperty("appName") + "/saved/searches/" +
+                connectorProperties.getProperty("searchName");
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap, null,null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 201);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
@@ -97,16 +109,13 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         eiRequestHeadersMap.put("Action", "urn:createSavedSearch");
 
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
-                        "esb_createSavedSearch_invalid.xml");
+                "esb_createSavedSearch_invalid.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/" +
-                connectorProperties.getProperty("appUserName") +
+        String apiEndpoint = apiUrl + "/servicesNS/" + connectorProperties.getProperty("appUserName") +
                 "/" + connectorProperties.getProperty("appName") + "/saved/searches";
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "POST",
-                apiRequestHeadersMap, "api_createSavedSearch_invalid.txt",
-                null, true);
+                apiRequestHeadersMap, "api_createSavedSearch_invalid.txt", null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 400);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 400);
@@ -117,8 +126,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
     /**
      * Positive test case for accessSavedSearch with mandatory parameters
      */
-    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {accessSavedSearch} integration test with " +
-            "mandatory parameters.")
+    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {accessSavedSearch} integration " +
+            "test with mandatory parameters.")
     public void testAccessSavedSearchMandatory() throws Exception {
 
         eiRequestHeadersMap.put("Action", "urn:accessSavedSearch");
@@ -126,10 +135,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_accessSavedSearch_mandatory.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/" +
-                connectorProperties.getProperty("appUserName") + "/" + connectorProperties.getProperty("appName") +
-                "/saved/searches";
+        String apiEndpoint = apiUrl + "/servicesNS/" + connectorProperties.getProperty("appUserName") +
+                "/" + connectorProperties.getProperty("appName") + "/saved/searches";
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
                 apiRequestHeadersMap, null, null, true);
@@ -141,8 +148,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
     /**
      * Positive test case for accessSavedSearch with optional parameters.
      */
-    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {accessSavedSearch} integration test with " +
-            "optional parameters.")
+    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {accessSavedSearch} integration" +
+            " test with optional parameters.")
     public void testAccessSavedSearchOptional() throws Exception {
 
         eiRequestHeadersMap.put("Action", "urn:accessSavedSearch");
@@ -150,14 +157,11 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_accessSavedSearch_optional.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/" +
-                connectorProperties.getProperty("appUserName") + "/" + connectorProperties.getProperty("appName") +
-                "/saved/searches";
+        String apiEndpoint = apiUrl + "/servicesNS/" + connectorProperties.getProperty("appUserName") +
+                "/" + connectorProperties.getProperty("appName") + "/saved/searches";
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap, "api_accessSavedSearch_optional.txt", null,
-                true);
+                apiRequestHeadersMap, "api_accessSavedSearch_optional.txt", null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 200);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
@@ -175,8 +179,7 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
                 "esb_accessSavedSearch_invalid.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":" +
-                connectorProperties.getProperty("port") + "/servicesNS///saved/searches";
+        String apiEndpoint = apiUrl + "/servicesNS///saved/searches";
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
                 apiRequestHeadersMap, null, null, true);
@@ -189,8 +192,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
     /**
      * Positive test case for updateSavedSearch with mandatory parameters.
      */
-    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {updateSavedSearch} integration test with " +
-            "mandatory parameters.")
+    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {updateSavedSearch} integration " +
+            "test with mandatory parameters.", dependsOnMethods = {"testCreateSavedSearchMandatory"})
     public void testUpdateSavedSearchMandatory() throws Exception {
 
         eiRequestHeadersMap.put("Action", "urn:updateSavedSearch");
@@ -200,10 +203,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
 
         searchName = getValueByExpression("//entry/title", eiRestResponse.getBody());
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":" +
-                connectorProperties.getProperty("port") + "/servicesNS/" +
-                connectorProperties.getProperty("appUserName") + "/" + connectorProperties.getProperty("appName")
-                + "/saved/searches/" + searchName;
+        String apiEndpoint = apiUrl + "/servicesNS/" + connectorProperties.getProperty("appUserName") +
+                "/" + connectorProperties.getProperty("appName") + "/saved/searches/" + searchName;
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
                 apiRequestHeadersMap, null, null, true);
@@ -224,13 +225,11 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         eiRequestHeadersMap.put("Action", "urn:updateSavedSearch");
 
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
-                        "esb_updateSavedSearch_invalid.xml");
+                "esb_updateSavedSearch_invalid.xml");
         searchName = getValueByExpression("//entry/title", eiRestResponse.getBody());
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":" +
-                connectorProperties.getProperty("port") + "/servicesNS/"
-                + connectorProperties.getProperty("appUserName") + "/" + connectorProperties.getProperty("appName")
-                + "/saved/searches/";
+        String apiEndpoint = apiUrl + "/servicesNS/" + connectorProperties.getProperty("appUserName") +
+                "/" + connectorProperties.getProperty("appName") + "/saved/searches/";
         RestResponse<OMElement> apiRestResponse =
                 sendXmlRestRequestHTTPS(apiEndpoint, "POST", apiRequestHeadersMap,
                         "api_updateSavedSearch_invalid.txt", null, true);
@@ -244,8 +243,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
     /**
      * Positive test case for shareSavedSearch with mandatory parameters
      */
-    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {shareSavedSearch} integration test with " +
-            "mandatory parameters.")
+    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {shareSavedSearch} integration " +
+            "test with mandatory parameters.", dependsOnMethods = {"testCreateSavedSearchMandatory"})
     public void testShareSavedSearchMandatory() throws Exception {
 
         eiRequestHeadersMap.put("Action", "urn:shareSavedSearch");
@@ -255,10 +254,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
 
         searchName = getValueByExpression("//entry/title", eiRestResponse.getBody());
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/" +
-                connectorProperties.getProperty("appUserName") + "/" + connectorProperties.getProperty("appName")
-                + "/saved/searches/" + searchName;
+        String apiEndpoint = apiUrl + "/servicesNS/" + connectorProperties.getProperty("appUserName") +
+                "/" + connectorProperties.getProperty("appName") + "/saved/searches/" + searchName;
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
                 apiRequestHeadersMap, null, null, true);
@@ -276,6 +273,12 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
             "optional parameters.")
     public void testShareSavedSearchOptional() throws Exception {
 
+        String apiEndpointCreateSavedSearch = apiUrl + "/servicesNS/" + connectorProperties.getProperty("appUserName") +
+                "/" + connectorProperties.getProperty("appName") + "/saved/searches";
+
+        RestResponse<OMElement> apiRestResponseCreateSavedSearch = sendXmlRestRequestHTTPS(apiEndpointCreateSavedSearch,
+                "POST", apiRequestHeadersMap, "api_createSavedSearch_to_move.txt",
+                null, true);
         eiRequestHeadersMap.put("Action", "urn:shareSavedSearch");
 
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
@@ -283,10 +286,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
 
         searchName = getValueByExpression("//entry/title", eiRestResponse.getBody());
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/" +
-                connectorProperties.getProperty("appUserName") + "/" + connectorProperties.getProperty("appName")
-                + "/saved/searches/" + searchName;
+        String apiEndpoint = apiUrl + "/servicesNS/" + connectorProperties.getProperty("appUserName") +
+                "/" + connectorProperties.getProperty("appName") + "/saved/searches/" + searchName;
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
                 apiRequestHeadersMap, null, null, true);
 
@@ -309,16 +310,13 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
                 sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
                         "esb_shareSavedSearch_invalid.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/" +
+        String apiEndpoint = apiUrl + "/servicesNS/" +
                 connectorProperties.getProperty("appUserName") + "/" + connectorProperties.getProperty("appName")
-                + "/saved/searches/" + connectorProperties.getProperty("searchName") + "/acl";
+                + "/saved/searches//acl";
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "POST",
-                apiRequestHeadersMap,
-                        "api_shareSavedSearch_invalid.txt", null, true);
+                apiRequestHeadersMap, "api_shareSavedSearch_invalid.txt", null, true);
 
-        Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 500);
-        Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 500);
+        Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 400);
         Assert.assertEquals(getValueByExpression("//response/messages", eiRestResponse.getBody()),
                 getValueByExpression("//response/messages", apiRestResponse.getBody()));
     }
@@ -326,8 +324,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
     /**
      * Positive test case for moveSavedSearch with mandatory parameters.
      */
-    @Test(enabled = true, groups = {"wso2.ei"}, dependsOnMethods = {"testShareSavedSearchMandatory()"},
-            description = "splunk{moveSavedSearch} integration test with mandatory parameters.")
+    @Test(enabled = true, groups = {"wso2.ei"}, dependsOnMethods = {"testShareSavedSearchOptional"},
+            description = "splunk {moveSavedSearch} integration test with mandatory parameters.")
     public void testMoveSavedSearchMandatory() throws Exception {
 
         eiRequestHeadersMap.put("Action", "urn:moveSavedSearch");
@@ -335,19 +333,14 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
                 "esb_moveSavedSearch_mandatory.xml");
 
-        String appContext = getValueByExpression("//id", eiRestResponse.getBody());
-
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/" +
+        String apiEndpoint = apiUrl + "/servicesNS/" +
                 "nobody/" + connectorProperties.getProperty("appName") + "/saved/searches/"
-                + connectorProperties.getProperty("searchName");
+                + connectorProperties.getProperty("searchName1");
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap,
-                        null, null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 200);
-        Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
-        Assert.assertEquals(appContext, getValueByExpression("//id", apiRestResponse.getBody()));
+        Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 404);
     }
 
     /**
@@ -360,16 +353,13 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         eiRequestHeadersMap.put("Action", "urn:moveSavedSearch");
 
         RestResponse<OMElement> eiRestResponse =
-                sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
-                        "esb_moveSavedSearch_invalid.xml");
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":" +
-                connectorProperties.getProperty("port") + "/servicesNS/"
+                sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap, "esb_moveSavedSearch_invalid.xml");
+        String apiEndpoint = apiUrl + "/servicesNS/"
                 + connectorProperties.getProperty("appUserName") + "/" + connectorProperties.getProperty("appName")
                 + "/saved/searches//move";
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "POST",
-                apiRequestHeadersMap,
-                        "api_moveSavedSearch_invalid.txt", null, true);
+                apiRequestHeadersMap, "api_moveSavedSearch_invalid.txt", null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 400);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 400);
@@ -381,7 +371,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
      * Positive test case for deleteSavedSearch with mandatory parameters.
      */
     @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {deleteSavedSearch} integration test with " +
-            "mandatory parameters.")
+            "mandatory parameters.", dependsOnMethods = {"testCreateSavedSearchMandatory",
+            "testUpdateSavedSearchMandatory", "testShareSavedSearchMandatory"})
     public void testDeleteSavedSearchMandatory() throws Exception {
 
         eiRequestHeadersMap.put("Action", "urn:deleteSavedSearch");
@@ -389,17 +380,16 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_deleteSavedSearch_mandatory.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":" +
-                connectorProperties.getProperty("port") + "/servicesNS/"
+        String apiEndpoint = apiUrl + "/servicesNS/"
                 + connectorProperties.getProperty("appUserName") + "/" +
                 connectorProperties.getProperty("appName") + "/saved/searches/" +
                 connectorProperties.getProperty("searchName");
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap, null,null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 200);
-        Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 404);
+        Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
     }
 
     /**
@@ -415,13 +405,12 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
                 sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
                         "esb_deleteSavedSearch_invalid.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/"
+        String apiEndpoint = apiUrl + "/servicesNS/"
                 + connectorProperties.getProperty("appUserName") + "/" +
                 connectorProperties.getProperty("appName") + "/saved/searches/";
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "DELETE",
-                apiRequestHeadersMap,null, null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 400);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 400);
@@ -432,7 +421,7 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
     /**
      * Positive test case for createSearchJob with mandatory parameters.
      */
-    @Test(enabled = true, priority = 1, groups = {"wso2.ei"}, description = "splunk {createSearchJob} integration test" +
+    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {createSearchJob} integration test" +
             " with mandatory parameters.")
     public void testCreateSearchJobMandatory() throws Exception {
 
@@ -443,13 +432,10 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
 
         searchId = getValueByExpression("//response/sid", eiRestResponse.getBody());
         connectorProperties.setProperty("searchId", searchId);
+        String apiEndpoint = apiUrl + "/services/search/jobs/" + searchId;
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":" +
-                connectorProperties.getProperty("port") + "/services/search/jobs/" + searchId;
-
-        RestResponse<OMElement> apiRestResponse =
-                sendXmlRestRequestHTTPS(apiEndpoint, "GET", apiRequestHeadersMap, null,
-                        null, true);
+        RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 201);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
@@ -468,12 +454,10 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
                 "esb_createSearchJob_optional.xml");
 
         searchId = getValueByExpression("//response/sid", eiRestResponse.getBody());
-
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/services/search/jobs/" + searchId;
+        String apiEndpoint = apiUrl + "/services/search/jobs/" + searchId;
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap, null,null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 201);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
@@ -482,7 +466,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
     /**
      * Negative test case for createSearchJob.
      */
-    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {createSearchJob} integration test with negative cases.")
+    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {createSearchJob} integration test with " +
+            "negative cases.")
     public void testCreateSearchJobWithNegativeCases() throws Exception {
 
         eiRequestHeadersMap.put("Action", "urn:createSearchJob");
@@ -490,8 +475,7 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_createSearchJob_invalid.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/services/search/jobs";
+        String apiEndpoint = apiUrl + "/services/search/jobs";
 
         RestResponse<OMElement> apiRestResponse =
                 sendXmlRestRequestHTTPS(apiEndpoint, "POST", apiRequestHeadersMap,
@@ -503,24 +487,87 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
     }
 
     /**
+     * Positive test case for getSearchResults with mandatory parameters.
+     */
+    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {getSearchResults} integration test with " +
+            "mandatory parameters.")
+    public void testGetSearchResultsMandatory() throws Exception {
+
+        eiRequestHeadersMap.put("Action", "urn:getSearchResults");
+        RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
+                "esb_getSearchResults_mandatory.xml");
+
+        String apiEndpoint = apiUrl + "/services/search/jobs/" + searchId + "/results";
+        RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
+                apiRequestHeadersMap, null, null, true);
+        //Getting both status codes 200 and 204 randomly when successful.
+        String eiStatusCode = Integer.toString(eiRestResponse.getHttpStatusCode());
+        String apiStatusCode = Integer.toString(apiRestResponse.getHttpStatusCode());
+
+        Assert.assertTrue(eiStatusCode.equals("200") || eiStatusCode.equals("204"));
+        Assert.assertTrue(apiStatusCode.equals("200") || apiStatusCode.equals("204"));
+    }
+
+    /**
+     * Positive test case for getSearchResults with optional parameters.
+     */
+    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {getSearchResults} integration test with " +
+            "optional parameters.")
+    public void testGetSearchResultsOptional() throws Exception {
+
+        eiRequestHeadersMap.put("Action", "urn:getSearchResults");
+
+        RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
+                eiRequestHeadersMap, "esb_getSearchResults_optional.xml");
+
+        String apiEndpoint = apiUrl + "/services/search/jobs/" + searchId + "/results";
+
+        RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
+                apiRequestHeadersMap, "api_getSearchResults_optional.txt", null, true);
+        //Getting both status codes 200 and 204 randomly when successful.
+        String eiStatusCode = Integer.toString(eiRestResponse.getHttpStatusCode());
+        String apiStatusCode = Integer.toString(apiRestResponse.getHttpStatusCode());
+
+        Assert.assertTrue(eiStatusCode.equals("200") || eiStatusCode.equals("204"));
+        Assert.assertTrue(apiStatusCode.equals("200") || apiStatusCode.equals("204"));
+    }
+
+    /**
+     * Negative test case for getSearchResults.
+     */
+    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {getSearchResults} integration test with " +
+            "negative cases.")
+    public void testGetSearchResultsWithNegativeCases() throws Exception {
+
+        eiRequestHeadersMap.put("Action", "urn:getSearchResults");
+
+        RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
+                eiRequestHeadersMap, "esb_getSearchResults_invalid.xml");
+
+        String apiEndpoint = apiUrl + "/services/search/jobs//results";
+        RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
+                apiRequestHeadersMap, null, null, true);
+
+        Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 404);
+        Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 404);
+    }
+
+    /**
      * Positive test case for accessSearchJob with mandatory parameters.
      */
-    @Test(enabled = true, groups = {"wso2.ei"}, dependsOnMethods = {"testCreateSearchJobMandatory()"}, description =
+    @Test(enabled = true, groups = {"wso2.ei"}, dependsOnMethods = {"testCreateSearchJobMandatory"}, description =
             "splunk {accessSearchJob} integration test with mandatory parameters.")
     public void testAccessSearchJobMandatory() throws Exception {
 
         eiRequestHeadersMap.put("Action", "urn:accessSearchJob");
-
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
                 "esb_accessSearchJob_mandatory.xml");
 
         String searchJobId = getValueByExpression("//entry/id", eiRestResponse.getBody());
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/services/search/jobs/" +
-                connectorProperties.getProperty("searchId");
+        String apiEndpoint = apiUrl + "/services/search/jobs/" + connectorProperties.getProperty("searchId");
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap, null,null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 200);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
@@ -536,82 +583,13 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         eiRequestHeadersMap.put("Action", "urn:accessSearchJob");
 
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
-                        "esb_accessSearchJob_invalid.xml");
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/services/search/jobs//";
+                "esb_accessSearchJob_invalid.xml");
+        String apiEndpoint = apiUrl + "/services/search/jobs//";
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap, null,null,true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 200);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
-    }
-
-    /**
-     * Positive test case for getSearchResults with mandatory parameters.
-     */
-    @Test(enabled = true, groups = {"wso2.ei"}, dependsOnMethods = {"testCreateSearchJobMandatory()"}, description =
-            "splunk {getSearchResults} integration test with mandatory parameters.")
-    public void testGetSearchResultsMandatory() throws Exception {
-
-        eiRequestHeadersMap.put("Action", "urn:getSearchResults");
-
-        RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
-                "esb_getSearchResults_mandatory.xml");
-
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/services/search/jobs/" +
-                connectorProperties.getProperty("searchId") + "/results";
-        RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap, null,
-                null, true);
-
-        Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 200);
-        Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
-    }
-
-    /**
-     * Positive test case for getSearchResults with optional parameters.
-     */
-    @Test(enabled = true, groups = {"wso2.ei"}, dependsOnMethods = {"testCreateSearchJobMandatory()"}, description =
-            "splunk {getSearchResults} integration test with optional parameters.")
-    public void testGetSearchResultsOptional() throws Exception {
-
-        eiRequestHeadersMap.put("Action", "urn:getSearchResults");
-
-        RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
-                eiRequestHeadersMap, "esb_getSearchResults_optional.xml");
-
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/services/search/jobs/" +
-                connectorProperties.getProperty("searchId") + "/results";
-
-        RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap,"api_getSearchResults_optional.txt", null,
-                true);
-
-        Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 200);
-        Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
-    }
-
-    /**
-     * Negative test case for getSearchResults.
-     */
-    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {getSearchResults} integration test with " +
-            "negative cases.")
-    public void testGetSearchResultsWithNegativeCases() throws Exception {
-
-        eiRequestHeadersMap.put("Action", "urn:getSearchResults");
-
-        RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
-                eiRequestHeadersMap, "esb_getSearchResults_invalid.xml");
-
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/services/search/jobs//results";
-        RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap,null, null, true);
-
-        Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 404);
-        Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 404);
     }
 
     /**
@@ -625,13 +603,11 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
 
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
                 "esb_createConfigFile_mandatory.xml");
-
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/nobody/" +
+        String apiEndpoint = apiUrl + "/servicesNS/nobody/" +
                 connectorProperties.getProperty("appName") + "/properties/" +
                 connectorProperties.getProperty("configFileName");
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap,null, null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 201);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
@@ -649,11 +625,9 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_createConfigFile_invalid.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/nobody//properties";
+        String apiEndpoint = apiUrl + "/servicesNS/nobody//properties";
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "POST",
-                apiRequestHeadersMap,"api_createConfigFile_invalid.txt", null,
-                true);
+                apiRequestHeadersMap, "api_createConfigFile_invalid.txt", null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 404);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 404);
@@ -671,13 +645,12 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_addStanza_mandatory.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/nobody/" +
+        String apiEndpoint = apiUrl + "/servicesNS/nobody/" +
                 connectorProperties.getProperty("appName") + "/properties/" +
                 connectorProperties.getProperty("configFileName") + "/" + connectorProperties.getProperty("stanzaName");
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap,null, null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 201);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
@@ -695,13 +668,12 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST", eiRequestHeadersMap,
                 "esb_addStanza_optional.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/nobody/" +
+        String apiEndpoint = apiUrl + "/servicesNS/nobody/" +
                 connectorProperties.getProperty("appName") + "/properties/" +
                 connectorProperties.getProperty("configFileName") + "/" + connectorProperties.getProperty("stanzaName");
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap,null, null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 201);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
@@ -710,7 +682,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
     /**
      * Negative test case for addStanza.
      */
-    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {addStanza} integration test with negative cases.")
+    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {addStanza} integration test with " +
+            "negative cases.")
     public void testAddStanzaWithNegativeCases() throws Exception {
 
         eiRequestHeadersMap.put("Action", "urn:addStanza");
@@ -718,12 +691,10 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_addStanza_invalid.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/nobody//configs/conf-";
+        String apiEndpoint = apiUrl + "/servicesNS/nobody//configs/conf-";
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "POST",
-                        apiRequestHeadersMap, "api_addStanza_invalid.txt", null,
-                        true);
+                apiRequestHeadersMap, "api_addStanza_invalid.txt", null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 404);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 404);
@@ -741,13 +712,12 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_updateStanza_mandatory.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/nobody/" +
+        String apiEndpoint = apiUrl + "/servicesNS/nobody/" +
                 connectorProperties.getProperty("appName") + "/properties/" +
                 connectorProperties.getProperty("configFileName") + "/" + connectorProperties.getProperty("stanzaName");
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap,null, null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 200);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
@@ -765,12 +735,10 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_updateStanza_invalid.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/nobody//configs/conf-//";
+        String apiEndpoint = apiUrl + "/servicesNS/nobody//configs/conf-//";
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "POST",
-                apiRequestHeadersMap,"api_updateStanza_invalid.txt", null,
-                true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 404);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 404);
@@ -788,17 +756,15 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_getStanza_mandatory.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/nobody/" +
+        String apiEndpoint = apiUrl + "/servicesNS/nobody/" +
                 connectorProperties.getProperty("appName") + "/configs/conf-" +
                 connectorProperties.getProperty("configFileName");
 
-        RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET", apiRequestHeadersMap,
-                        null, null, true);
+        RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 200);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
-
     }
 
     /**
@@ -813,11 +779,10 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_getStanza_invalid.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":" +
-                connectorProperties.getProperty("port") + "/servicesNS/nobody//configs/conf-";
+        String apiEndpoint = apiUrl + "/servicesNS/nobody//configs/conf-";
 
-        RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET", apiRequestHeadersMap,
-                        null, null, true);
+        RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint,
+                "GET", apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 404);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 404);
@@ -826,8 +791,8 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
     /**
      * Positive test case for deleteStanza with mandatory parameters.
      */
-    @Test(enabled = true, groups = {"wso2.ei"}, description =
-            "splunk {deleteStanza} integration test with mandatory parameters.")
+    @Test(enabled = true, groups = {"wso2.ei"}, description = "splunk {deleteStanza} integration test with " +
+            "mandatory parameters.")
     public void testDeleteStanzaMandatory() throws Exception {
 
         eiRequestHeadersMap.put("Action", "urn:deleteStanza");
@@ -835,14 +800,13 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_deleteStanza_mandatory.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":" +
-                connectorProperties.getProperty("port") + "/servicesNS/nobody/" +
+        String apiEndpoint = apiUrl + "/servicesNS/nobody/" +
                 connectorProperties.getProperty("appName") + "/properties/" +
                 connectorProperties.getProperty("configFileName") + "/" +
                 connectorProperties.getProperty("stanzaName1");
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap,null, null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 200);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 404);
@@ -860,11 +824,10 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_deleteStanza_invalid.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":"
-                + connectorProperties.getProperty("port") + "/servicesNS/nobody//configs/conf-/";
+        String apiEndpoint = apiUrl + "/servicesNS/nobody//configs/conf-/";
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "DELETE",
-                        apiRequestHeadersMap, null, null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 404);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 404);
@@ -882,12 +845,11 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_getAppConfigFiles_mandatory.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":" +
-                connectorProperties.getProperty("port") + "/servicesNS/nobody/" +
+        String apiEndpoint = apiUrl + "/servicesNS/nobody/" +
                 connectorProperties.getProperty("appName") + "/properties";
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
-                apiRequestHeadersMap,null, null, true);
+                apiRequestHeadersMap, null, null, true);
 
         Assert.assertEquals(eiRestResponse.getHttpStatusCode(), 200);
         Assert.assertEquals(apiRestResponse.getHttpStatusCode(), 200);
@@ -905,8 +867,7 @@ public class SplunkConnectorIntegrationTest extends ConnectorIntegrationTestBase
         RestResponse<OMElement> eiRestResponse = sendXmlRestRequest(proxyUrl, "POST",
                 eiRequestHeadersMap, "esb_getAppConfigFiles_invalid.xml");
 
-        String apiEndpoint = "https://" + connectorProperties.getProperty("hostname") + ":" +
-                connectorProperties.getProperty("port") + "/servicesNS/nobody//properties";
+        String apiEndpoint = apiUrl + "/servicesNS/nobody//properties";
 
         RestResponse<OMElement> apiRestResponse = sendXmlRestRequestHTTPS(apiEndpoint, "GET",
                 apiRequestHeadersMap, null, null, true);

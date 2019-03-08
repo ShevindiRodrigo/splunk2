@@ -20,7 +20,6 @@
     <parameter name="appName" description="Name of the app to list all configuration files"/>
     <sequence>
         <property name="uri.var.appName" expression="$func:appName"/>
-        <header name="Authorization" expression="get-property('Authorization')" scope="transport"/>
         <call>
             <endpoint>
                 <http method="GET"
@@ -29,4 +28,3 @@
         </call>
     </sequence>
 </template>
-

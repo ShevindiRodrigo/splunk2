@@ -3,5 +3,5 @@
     <password>%s(password)</password>
     <hostname>%s(hostname)</hostname>
     <port>%s(port)</port>
-    <searchId></searchId>
+    <searchId>%s(searchId)</searchId>
 </accessSearchJob>

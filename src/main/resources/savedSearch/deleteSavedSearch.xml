@@ -25,7 +25,6 @@
         <property name="uri.var.appUserName" expression="$func:appUserName"/>
         <property name="uri.var.searchName" expression="$func:searchName"/>
         <property name="NO_ENTITY_BODY" value="true" scope="axis2" type="BOOLEAN"/>
-        <header name="Authorization" expression="get-property('Authorization')" scope="transport"/>
         <call>
             <endpoint>
                 <http method="DELETE"

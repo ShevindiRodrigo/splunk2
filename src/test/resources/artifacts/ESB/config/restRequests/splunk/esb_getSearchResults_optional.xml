@@ -3,12 +3,12 @@
     <password>%s(password)</password>
     <hostname>%s(hostname)</hostname>
     <port>%s(port)</port>
-    <searchQuery>%s(searchQuery)</searchQuery>
+    <searchQuery></searchQuery>
     <addSummaryToMetadata></addSummaryToMetadata>
     <searchId>%s(searchId)</searchId>
-    <resultCount>%s(resultCount)</resultCount>
+    <resultCount></resultCount>
     <fields></fields>
     <fieldList>%s(fieldList)</fieldList>
     <resultOffset></resultOffset>
-    <outputFormat></outputFormat>
+    <outputFormat>%s(outputFormat)</outputFormat>
 </getSearchResults>

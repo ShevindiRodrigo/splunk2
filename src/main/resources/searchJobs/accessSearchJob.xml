@@ -20,16 +20,11 @@
     <parameter name="searchId" description="String to specify the search ID "/>
     <sequence>
         <property name="uri.var.searchId" expression="$func:searchId"/>
-        <header name="Authorization" expression="get-property('Authorization')" scope="transport"/>
         <call>
             <endpoint>
                 <http method="GET"
                       uri-template="https://{uri.var.hostname}:{uri.var.port}/services/search/jobs/{uri.var.searchId}"/>
             </endpoint>
         </call>
-
-        <!--Remove response custom header information-->
-        <header name="x-content-type-options" scope="transport" action="remove"/>
-        <header name="x-frame-options" scope="transport" action="remove"/>
     </sequence>
 </template>

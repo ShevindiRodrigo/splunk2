@@ -5,7 +5,7 @@
     <port>%s(port)</port>
     <appName>%s(appName)</appName>
     <appUserName>%s(appUserName)</appUserName>
-    <searchName>%s(searchName)</searchName>
+    <searchName></searchName>
     <enableChangePermission></enableChangePermission>
     <enableAppShare></enableAppShare>
     <enableGlobalShare></enableGlobalShare>

@@ -16,7 +16,6 @@
  ~  specific language governing permissions and limitations
  ~  under the License.
 -->
-
 <proxy xmlns="http://ws.apache.org/ns/synapse" name="splunk"
        transports="https,http" statistics="disable" trace="disable"
        startOnLoad="true">
@@ -194,12 +193,10 @@
                     </splunk.getAppConfigFiles>
                 </case>
             </switch>
-            <log level="full"/>
             <respond/>
         </inSequence>
-        <outSequence>
-            <send/>
-        </outSequence>
+        <outSequence/>
+        <send/>
     </target>
     <description/>
 </proxy>

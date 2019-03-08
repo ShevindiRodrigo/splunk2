@@ -22,7 +22,6 @@
     <sequence>
         <property name="uri.var.appName" expression="$func:appName"/>
         <property name="uri.var.configFileName" expression="$func:configFileName"/>
-        <header name="Authorization" expression="get-property('Authorization')" scope="transport"/>
         <call>
             <endpoint>
                 <http method="GET"
@@ -31,4 +30,3 @@
         </call>
     </sequence>
 </template>
-

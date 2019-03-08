@@ -24,8 +24,8 @@
     <sequence>
         <property name="uri.var.appName" expression="$func:appName"/>
         <property name="uri.var.appUserName" expression="$func:appUserName"/>
-        <property name="uri.var.searchName" expression="$func:searchName"/>
-        <property name="uri.var.searchQuery" expression="$func:searchQuery"/>
+        <property name="searchName" expression="$func:searchName"/>
+        <property name="searchQuery" expression="$func:searchQuery"/>
         <payloadFactory media-type="json">
             <format>
                 {
@@ -41,16 +41,11 @@
             </args>
         </payloadFactory>
         <property name="messageType" scope="axis2" type="STRING" value="application/x-www-form-urlencoded"/>
-        <header name="Authorization" expression="get-property('Authorization')" scope="transport"/>
         <call>
             <endpoint>
                 <http method="POST"
-                      uri-template="https://{uri.var.hostname}:{uri.var.port}/servicesNS/{uri.var.appUserName}/{uri.var.appName}/saved/searches?name={uri.var.searchName}&amp;search={uri.var.searchQuery}"/>
+                      uri-template="https://{uri.var.hostname}:{uri.var.port}/servicesNS/{uri.var.appUserName}/{uri.var.appName}/saved/searches"/>
             </endpoint>
         </call>
-
-        <!--Remove response custom header information-->
-        <header name="x-content-type-options" scope="transport" action="remove"/>
-        <header name="x-frame-options" scope="transport" action="remove"/>
     </sequence>
 </template>

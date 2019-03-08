@@ -5,7 +5,7 @@
     <port>%s(port)</port>
     <appName>%s(appName)</appName>
     <appUserName>%s(appUserName)</appUserName>
-    <searchName>%s(searchName)</searchName>
+    <searchName>%s(searchName1)</searchName>
     <enableChangePermission></enableChangePermission>
     <enableAppShare></enableAppShare>
     <enableGlobalShare></enableGlobalShare>
@@ -14,6 +14,6 @@
     <ownerName>%s(ownerName)</ownerName>
     <readPermissionProperties>%s(readPermissionProperties)</readPermissionProperties>
     <writePermissionProperties></writePermissionProperties>
-    <isRemovable>true</isRemovable>
+    <isRemovable>%s(isRemovable)</isRemovable>
     <resourceShareOption>%s(resourceShareOption)</resourceShareOption>
 </shareSavedSearch>

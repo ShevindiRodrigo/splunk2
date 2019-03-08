@@ -1,4 +1,4 @@
-﻿## Integration Tests: WSO2 ESB Splunk Connector for Splunk Enterprise API Version v4.
+﻿## Integration Tests: WSO2 EI Splunk Connector for Splunk Enterprise API Version V7.2.3.
 
 ### Pre-requisites:
 
@@ -18,7 +18,7 @@
 
 1.Create a Splunk account and get Splunk Enterprise software according to below steps:
 
-        i)     Navigate to "http://splunk.com" and create an splunk account.
+        i)     Navigate to "https://www.splunk.com/en_us/page/sign_up?redirecturl=" and create an splunk account.
         ii)    Download the Splunk Enterprise for free.
         iii)   To install Splunk Enterprise on a Linux system, expand the tar file into an appropriate directory using the tar command: tar xvzf splunk_package_name.tgz
 
@@ -44,10 +44,11 @@
        
         i)  Please make sure that the below mentioned Axis configurations are enabled (/repository/conf/axis2/axis2.xml).
          <parameter name="HostnameVerifier">AllowAll</parameter>
+        ii)Open a command line terminal and execute the following command from "$SPLUNK_HOME/etc/auth" to import the certificate to  client-truststore.jks:
+                        "keytool -importcert -file server.pem -keystore {EI_HOME}/repository/resources/security/client-truststore.jks -alias splunk"
+        iii) Deploy relevant patches, if applicable.
 
-        ii) Deploy relevant patches, if applicable.
-
-6.Compress modified EI as wso2ei-6.4.0.zip and copy that zip file in to location ``<CONNECTOR_HOME>/repository/`.
+6.Compress modified EI as wso2ei-6.4.0.zip and copy that zip file in to location `<CONNECTOR_HOME>/repository/`.
 
 7.Follow the below mentioned steps for adding valid certificate to access Splunk API over https
 
@@ -62,54 +63,49 @@
         ii)   password                  -		Use the password, step 2->(iii)
         iii)  hostname                  -		Use the hostname, localhost
         iii)  port                      -		Use the management port specified during the start of the Splunk
+        iv)   appName                   -       Use the name of the app which is created in step 3
+        v)    appUserName               -       Use the author name specified during the creation of the app in step 3
+        vi)   appNameToMove             -       The app where the saved search is going to move |
+    
 
 9.Update the splunk properties file at location `<Connector_Home>/src/test/resources/artifacts/ESB/connector/config` as below.
+<br/><br/>
 
-    <br/><br/>
-
-    | Property | Description |
-    | ------------- |-------------|
-    | username | Use the username which is obtained in step 2 |
-    | password | Use the password which is obtained in step 2 |				                    - .
-    | hostname | Use as "localhost" |						                    - .
-    | port | Use the management port specified during the start of the Splunk |
-    | appName | Use the name of the app which is created in step 3 |
-    | appUserName | Use the author name specified during the creation of the app in step 3 |
-    | searchName | Name of the search query |
-    | searchQuery | Search string |
-    | searchQuery1 | Search string |
-    | listDefaultAction | Indicates whether to list default actions |
-    | orphanField | Indicates whether response includes a boolean value for each saved search to show whether the search is orphaned, meaning that it has no valid owner |
-    | earliestTime | For scheduled searches display all the scheduled times starting from this time |
-    | latestTime | For scheduled searches display all the scheduled times until this time |
-    | enableChangePermission | Indicates if the active user can change permissions for this object |
-    | ownerName | User name of resource owner |
-    | resourceShareOption | Indicates how the resource is shared |
-    | enableAppShare | Indicates if the active user can change sharing to app level |
-    | enableGlobalShare | Indicates if the active user can change sharing to system level |
-    | enableUserShare | Indicates if the active user can change sharing to user level |
-    | enableEditPermission | Indicates if the active user can edit this object |
-    | readPermissionProperties | Properties that indicate resource read permissions |
-    | writePermissionProperties | Properties that indicate write permissions of the resource |
-    | isRemovable | Indicates whether an admin or user with sufficient permissions can delete the entity |
-    | appNameToMove | The app where the saved search is going to move |
-    | adhocSearchLevel | Use one of the following search modes.verbose,fast,smart |
-    | searchId | Optional string to specify the search ID |
-    | maxCount | The number of events that can be accessible in any given status bucket |
-    | requiredFields | Adds a required field to the search |
-    | bucketStatus | The most status buckets to generate |
-    | searchMode | Valid values: (normal | realtime) |
-    | addSummaryToMetadata | Set the value to 'true' to include field summary statistics in the response |
-    | resultCount | The maximum number of results to return |
-    | fields | A field to return for the event set |
-    | fieldList | Specify a comma-separated list of the fields to return for the event set |
-    | resultOffset | The first result (inclusive) from which to begin returning data |
-    | outputFormat | Valid values: (atom | csv | json | json_cols | json_rows | raw | xml) |
-    | configFileName | Name of the configuration file |
-    | stanzaName | Name of the stanza |
-    | stanzaName1 | Name of the stanza |
-    | dataFields | Arbitrary number of key/value pairs |
+| Property | Description |
+| ------------- |-------------|
+| searchName | Name of the search query |
+| searchName1 | Name of the search query to move the saved search |
+| searchQuery | Search string |
+| searchQuery1 | Search string |
+| listDefaultAction | Indicates whether to list default actions |
+| orphanField | Indicates whether response includes a boolean value for each saved search to show whether the search is orphaned, meaning that it has no valid owner |
+| earliestTime | For scheduled searches display all the scheduled times starting from this time |
+| latestTime | For scheduled searches display all the scheduled times until this time |
+| enableChangePermission | Indicates if the active user can change permissions for this object |
+| ownerName | User name of resource owner |
+| resourceShareOption | Indicates how the resource is shared |
+| enableAppShare | Indicates if the active user can change sharing to app level |
+| enableGlobalShare | Indicates if the active user can change sharing to system level |
+| enableUserShare | Indicates if the active user can change sharing to user level |
+| enableEditPermission | Indicates if the active user can edit this object |
+| readPermissionProperties | Properties that indicate resource read permissions |
+| writePermissionProperties | Properties that indicate write permissions of the resource |
+| isRemovable | Indicates whether an admin or user with sufficient permissions can delete the entity |
+| adhocSearchLevel | Use one of the following search modes.verbose,fast,smart |
+| maxCount | The number of events that can be accessible in any given status bucket |
+| requiredFields | Adds a required field to the search |
+| bucketStatus | The most status buckets to generate |
+| searchMode | Valid values: (normal | realtime) |
+| addSummaryToMetadata | Set the value to 'true' to include field summary statistics in the response |
+| resultCount | The maximum number of results to return |
+| fields | A field to return for the event set |
+| fieldList | Specify a comma-separated list of the fields to return for the event set |
+| resultOffset | The first result (inclusive) from which to begin returning data |
+| outputFormat | Valid values: (atom | csv | json | json_cols | json_rows | raw | xml) |
+| configFileName | Name of the configuration file |
+| stanzaName | Name of the stanza |
+| stanzaName1 | Name of the stanza |
+| dataFields | Arbitrary number of key/value pairs |
 
  10.Navigate to `{EI_Connector_Home}/` and run the following command.
              `$ mvn clean install -Dskip-tests=false`
-

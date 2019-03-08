@@ -22,11 +22,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon.esb.connector</groupId>
     <artifactId>org.wso2.carbon.esb.connector.splunk</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>WSO2 Carbon - Connector For Splunk</name>
     <url>http://wso2.org</url>
-
     <properties>
         <connector.name>splunk</connector.name>
         <integration.base.version>1.0.4</integration.base.version>
